@@ -1,0 +1,34 @@
+body {
+	background: #141530;
+	margin: 0;
+	padding: 0;
+}
+
+.node {
+	position: absolute;
+	transform: translate(-50%,-50%);
+	color: white;
+}
+
+.graph {
+	position: relative;
+	width: 100vw;
+	height: 100vh;
+	overflow: hidden;
+}
+
+.graph .node-nest { 
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+}
+
+.graph .link-nest {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+}
