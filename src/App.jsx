@@ -1,17 +1,28 @@
-import { useState, useEffect, useRef, useMemo } from 'react'
-import './App.css'
+import { useState, useEffect, useRef, useMemo } from "react"
+import "./App.css"
+import planetPicture from "/planet.png"
 
-function NodeView({x=0,y=0,label="a",onMouseDown}) {
+function CourseCardView({code, name, picture}) {
+	return (
+		<div className = "course-card" >
+			<img className = "picture" src = {picture} />
+			<span className = "code" >{code}</span>
+			<span className = "name" >{name}</span>
+		</div>
+	)
+}
+
+function NodeView({x=0,y=0,onMouseDown,children}) {
 	return (
 		<div 
-			className="node"
-			style={{
+			className = "node"
+			style = {{
 				left: `${x}px`,	
 				top: `${y}px`,
 			}}
 			onMouseDown={onMouseDown}
 		>
-			{label}
+			{children}
 		</div>	
 	)
 }
@@ -32,7 +43,8 @@ function LinkView({x1=0,y1=0,x2=10,y2=10,r=20}) {
 			x1={x1} y1={y1} 
 			x2={x2} y2={y2} 
 			stroke="white" 
-			strokeWidth="2px" 
+			strokeWidth="1px" 
+			filter="url(#glow)"
 		/>
 	)
 }
@@ -125,13 +137,9 @@ function GraphView({nodes, links, root}) {
 			alphaStart.current = { x: pos.x-e.clientX, y: pos.y-e.clientY }
 		}
 		return (
-			<NodeView 
-				key={key} 
-				x={x} 
-				y={y} 
-				label={`${node.label}(${layers.get(key)})`} 
-				onMouseDown={handleMouseDownAlpha}
-			/>
+			<NodeView key={key} x={x} y={y} onMouseDown={handleMouseDownAlpha} >
+				{node.content}
+			</NodeView>
 		)
 	})
 
@@ -141,7 +149,7 @@ function GraphView({nodes, links, root}) {
 		const x1 = pos1.x-origin.x, y1 = pos1.y-origin.y
 		const x2 = pos2.x-origin.x, y2 = pos2.y-origin.y
 		return (
-			<LinkView key={key} x1={x1} y1={y1} x2={x2} y2={y2} r={50} />
+			<LinkView key={key} x1={x1} y1={y1} x2={x2} y2={y2} r={90} />
 		)
 	})
 
@@ -154,11 +162,11 @@ function GraphView({nodes, links, root}) {
 
 			const linkStrength = 1
 
-			const radialLength = 50
+			const radialLength = 200
 			const radialStrength = 10
 
 			const layerStart = 600
-			const layerSeparation = 200
+			const layerSeparation = 250
 			const layerStrength = 5
 
 			// link force
@@ -213,14 +221,13 @@ function GraphView({nodes, links, root}) {
 	}
 
 	const handleMouseDown = (e) => {
-		console.log("mouse down")
 		mouseDown.current = true
 		dragStart.current = { x: origin.x+e.clientX, y: origin.y+e.clientY }
 	}
 
 	const handleMouseMove = (e) => {
 		if(mouseDown.current) {
-			const alpha = alphaNode.current // alphaNode.current can change
+			const alpha = alphaNode.current // alphaNode.current can become undefined
 			if(alpha == undefined) {
 				setOrigin({ x: dragStart.current.x-e.clientX, y: dragStart.current.y-e.clientY })
 			}
@@ -266,6 +273,9 @@ function GraphView({nodes, links, root}) {
 			style={mouseDown.current ? {cursor:"grabbing"} : {}}
 		>
 			<svg className="link-nest" >
+				<filter id="glow">
+					<feDropShadow dx="0" dy="0" stdDeviation="2" floodColor="white" />
+				</filter>
 				<rect x="0" y="0" width="100000" height="100000" strokeWidth="0" fill="#112" />
 				{LinkViews}
 			</svg>
@@ -278,12 +288,12 @@ function GraphView({nodes, links, root}) {
 
 function App() {
 	const nodes = new Map([
-		["n1",{label:"1"}],
-		["n2",{label:"2"}],
-		["n3",{label:"3"}],
-		["n4",{label:"4"}],
-		["n5",{label:"5"}],
-		["n6",{label:"6"}],
+		["n1",{code:"MAC0101", name:"Integração na Universidade e na Profissão"}],
+		["n2",{code:"MAC0121", name:"Integração na Universidade e na Profissão"}],
+		["n3",{code:"MAC0216", name:"Integração na Universidade e na Profissão"}],
+		["n4",{code:"MAC0239", name:"Integração na Universidade e na Profissão"}],
+		["n5",{code:"MAE0119", name:"Integração na Universidade e na Profissão"}],
+		["n6",{code:"MAT2425", name:"Integração na Universidade e na Profissão"}],
 	])
 	const links = new Map([
 		["l1",{a:"n1", b:"n2"}],
@@ -293,6 +303,15 @@ function App() {
 		["l5",{a:"n6", b:"n1"}],
 		["l6",{a:"n5", b:"n6"}],
 	])
+	for(const [_,node] of nodes) {
+		node.content = ( 
+			<CourseCardView
+				code = {node.code}
+				name = {node.name}
+				picture = {planetPicture}
+			/>
+		)
+	}
 	return (
 		<GraphView nodes={nodes} links={links} root={"n1"} />
 	)
