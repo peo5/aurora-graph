@@ -85,13 +85,13 @@ function GraphView({
 	const NodeViews = Array.from(nodes, ([key,node],_) => {
 		const pos = positions.get(key)
 		const x = pos.x-origin.x, y = pos.y-origin.y
-		const handleMouseDownAlpha = (e) => {
+		function handleMouseDownNode(e) {
 			e.preventDefault()
-			alphaNode.current = key	
+			alphaNode.current = key
 			alphaStart.current = { x: pos.x-e.clientX, y: pos.y-e.clientY }
 		}
 		return (
-			<NodeView key={key} x={x} y={y} onMouseDown={handleMouseDownAlpha} >
+			<NodeView key={key} x={x} y={y} onMouseDown={handleMouseDownNode} >
 				{node.content}
 			</NodeView>
 		)
@@ -169,16 +169,31 @@ function GraphView({
 		alphaNode.current = undefined
 	}
 
+	function handleTouch(e) {
+		const touches = e.changedTouches
+		const first = touches[0]
+		
+		const type = (
+			e.type == "touchstart" ? "mousedown" :
+			e.type == "touchmove" ? "mousemove" :
+			"mouseup"
+		)
+
+		const simulatedEvent = document.createEvent("MouseEvent")
+		simulatedEvent.initMouseEvent(
+			type, true, true, window, 1,
+			first.screenX, first.screenY,
+			first.clientX, first.clientY, false,
+			false, false, false, 0/*left*/, null
+		)
+
+		first.target.dispatchEvent(simulatedEvent)
+	}
+
 	useEffect(() => {
 		animationRequest.current = requestAnimationFrame(update)
-		mouseMoveListener.current = addEventListener("mousemove", handleMouseMove)
-		mouseLeaveListener.current = addEventListener("mouseleave", handleMouseLeave)
-		mouseUpListener.current = addEventListener("mouseup", handleMouseUp)
 		return () => {
 			cancelAnimationFrame(animationRequest.current)
-			removeEventListener("mousemove", mouseMoveListener.current)
-			removeEventListener("mouseleave", mouseLeaveListener.current)
-			removeEventListener("mouseup", mouseUpListener.current)
 		}
 	}, [])
 
@@ -186,6 +201,14 @@ function GraphView({
 		<div
 			className="graph"
 			onMouseDown={handleMouseDown}
+			onMouseUp={handleMouseUp}
+			onMouseMove={handleMouseMove}
+			onMouseLeave={handleMouseLeave}
+
+			onTouchStart={handleTouch}
+			onTouchMove={handleTouch}
+			onTouchEnd={handleTouch}
+
 			style={mouseDown.current ? {cursor:"grabbing"} : {}}
 		>
 			<svg className="link-nest" >

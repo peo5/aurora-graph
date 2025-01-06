@@ -3,7 +3,7 @@ body {
 	padding: 0;
 }
 
-.course-card { 
+.course-card {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -16,6 +16,8 @@ body {
 	border: 1px solid #c2dcf530;
 	border-radius: 18px;
 	cursor: pointer;
+	-webkit-touch-callout: none;
+	user-select: none;
 }
 
 .course-card .picture {
@@ -50,7 +52,7 @@ body {
 	cursor: grab;
 }
 
-.graph .node-nest { 
+.graph .node-nest {
 	position: absolute;
 	top: 0;
 	left: 0;
