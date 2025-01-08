@@ -1,3 +1,4 @@
+import "./GraphView.css"
 import { useState, useEffect, useRef, useMemo } from "react"
 import NodeView from "./NodeView"
 import LinkView from "./LinkView"
