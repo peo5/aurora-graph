@@ -3,18 +3,6 @@ import NodeView from "./NodeView"
 import LinkView from "./LinkView"
 import { getAdjacencyLists, getLayers } from "./TraversalUtils"
 
-function applyLinkForce(positions, velocities, links, linkStrength) {
-	for(const [key,link] of links) {
-		const pos1 = positions.get(link.a), pos2 = positions.get(link.b)
-		const dist = pos2.y-pos1.y
-		const speed = dist*linkStrength
-		const velocity1 = velocities.get(link.a)
-		const velocity2 = velocities.get(link.b)
-		velocity1.y += speed
-		velocity2.y -= speed
-	}
-}
-
 function applyRadialForce(positions, velocities, radialLength, radialStrength) {
 	for(const [key1,pos1] of positions) {
 		for(const [key2,pos2] of positions) {
@@ -36,13 +24,25 @@ function applyRadialForce(positions, velocities, radialLength, radialStrength) {
 	}
 }
 
-function applyLayerForce(positions, velocities, layers, layerStart, layerSeparation, layerStrength) {
+function applyLinkForce(positions, velocities, links, linkStrength, axis="y") {
+	for(const [key,link] of links) {
+		const pos1 = positions.get(link.a), pos2 = positions.get(link.b)
+		const dist = pos2[axis]-pos1[axis]
+		const speed = dist*linkStrength
+		const velocity1 = velocities.get(link.a)
+		const velocity2 = velocities.get(link.b)
+		velocity1[axis] += speed
+		velocity2[axis] -= speed
+	}
+}
+
+function applyLayerForce(positions, velocities, layers, layerStart, layerSeparation, layerStrength, axis="x") {
 	for(const [key,pos] of positions) {
-		const layerX = layers.get(key)*layerSeparation+layerStart
-		const distance = layerX-pos.x
+		const layerPos = layers.get(key)*layerSeparation+layerStart
+		const distance = layerPos-pos[axis]
 		const speed = distance*layerStrength
 		const velocity = velocities.get(key)
-		velocity.x += speed
+		velocity[axis] += speed
 	}
 }
 
@@ -58,14 +58,16 @@ function GraphView({
 
 	layerStart = 600,
 	layerSeparation = 250,
-	layerStrength = 5
+	layerStrength = 5,
+	
+	vertical = false
 }) {
 
 	const [inLists, outLists] = useMemo(() => getAdjacencyLists(nodes,links), [nodes, links])
 	const layers = useMemo(() => getLayers(inLists, outLists, root), [inLists, outLists, root])
 
 	const [origin, setOrigin] = useState({ x: 0, y: 0 })
-  const [positions, setPositions] = useState(new Map(
+	const [positions, setPositions] = useState(new Map(
 		Array.from(nodes.keys(), key => [key,{x:Math.random()*10, y:Math.random()*10}])
 	))
 
@@ -114,15 +116,16 @@ function GraphView({
 				Array.from(nodes, ([key,node],id) => [key,{x:0, y:0}])
 			)
 
-			applyLinkForce(positions, velocities, links, linkStrength)
 			applyRadialForce(positions, velocities, radialLength, radialStrength)
+			applyLinkForce(positions, velocities, links, linkStrength, vertical ? "x" : "y")
 			applyLayerForce(
 				positions,
 				velocities,
 				layers,
 				layerStart,
 				layerSeparation,
-				layerStrength
+				layerStrength,
+				vertical ? "y" : "x"
 			)
 
 			return new Map(Array.from(positions, ([key,position],_) => {
