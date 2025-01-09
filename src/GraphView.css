@@ -8,6 +8,7 @@
 	height: 100%;
 	overflow: hidden;
 	cursor: grab;
+	touch-action: none;
 }
 
 .graph .node-nest {
