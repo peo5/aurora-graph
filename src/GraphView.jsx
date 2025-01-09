@@ -114,6 +114,10 @@ function GraphView({
 	})
 
 	function update() {
+		const currentTime = Date.now()
+		const deltaSeconds = (currentTime-animationTime.current)/1000
+		animationTime.current = currentTime
+
 		setPositions(positions => {
 
 			const velocities = new Map(
@@ -137,7 +141,7 @@ function GraphView({
 					return [key, {x:position.x, y:position.y}]
 				}
 				const velocity = velocities.get(key)
-				return [key, {x:position.x + velocity.x/100, y:position.y + velocity.y/100}]
+				return [key, {x:position.x + velocity.x*deltaSeconds, y:position.y + velocity.y*deltaSeconds}]
 			}))
 		})
 		animationRequest.current = requestAnimationFrame(update)
@@ -198,6 +202,7 @@ function GraphView({
 	}
 
 	useEffect(() => {
+		animationTime.current = Date.now()
 		animationRequest.current = requestAnimationFrame(update)
 		return () => {
 			cancelAnimationFrame(animationRequest.current)
