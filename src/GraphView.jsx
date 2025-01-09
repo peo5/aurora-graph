@@ -115,7 +115,7 @@ function GraphView({
 
 	function update() {
 		const currentTime = Date.now()
-		const deltaSeconds = (currentTime-animationTime.current)/1000
+		const deltaSeconds = Math.min(1,(currentTime-animationTime.current)/1000)
 		animationTime.current = currentTime
 
 		setPositions(positions => {
