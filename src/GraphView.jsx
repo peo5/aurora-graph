@@ -57,7 +57,7 @@ function GraphView({
 	radialLength = 200,
 	radialStrength = 10,
 
-	layerStart = 600,
+	layerStart = 0,
 	layerSeparation = 250,
 	layerStrength = 5,
 	
@@ -75,19 +75,20 @@ function GraphView({
 	const animationRequest = useRef()
 	const animationTime = useRef()
 
-	const mouseMoveListener = useRef()
-	const mouseLeaveListener = useRef()
-	const mouseUpListener = useRef()
-
 	const mouseDown = useRef(false)
 	const dragStart = useRef()
 
 	const alphaNode = useRef()
 	const alphaStart = useRef()
 
+	const outerDiv = useRef(null)
+	const width = outerDiv.current ? outerDiv.current.clientWidth : 0
+	const height = outerDiv.current ? outerDiv.current.clientHeight : 0
+
 	const NodeViews = Array.from(nodes, ([key,node],_) => {
 		const pos = positions.get(key)
-		const x = pos.x-origin.x, y = pos.y-origin.y
+		const x = pos.x-origin.x+width/2
+		const y = pos.y-origin.y+height/2
 		function handleMouseDownNode(e) {
 			e.preventDefault()
 			alphaNode.current = key
@@ -103,8 +104,10 @@ function GraphView({
 	const LinkViews = Array.from(links, ([key,link],_) => {
 		const pos1 = positions.get(link.a)
 		const pos2 = positions.get(link.b)
-		const x1 = pos1.x-origin.x, y1 = pos1.y-origin.y
-		const x2 = pos2.x-origin.x, y2 = pos2.y-origin.y
+		const x1 = pos1.x-origin.x+width/2
+		const y1 = pos1.y-origin.y+height/2
+		const x2 = pos2.x-origin.x+width/2
+		const y2 = pos2.y-origin.y+height/2
 		return (
 			<LinkView key={key} x1={x1} y1={y1} x2={x2} y2={y2} r={90} />
 		)
@@ -214,19 +217,26 @@ function GraphView({
 			onTouchEnd={handleTouch}
 
 			style={mouseDown.current ? {cursor:"grabbing"} : {}}
+			
+			ref={outerDiv}
 		>
 			<svg className="link-nest" >
 				<filter id="glow">
 					<feDropShadow dx="0" dy="0" stdDeviation="2" floodColor="white" />
 				</filter>
-				<rect x="0" y="0" width="100000" height="100000" strokeWidth="0" fill="#112" />
+				<rect 
+					x="0" y="0" 
+					width={width} 
+					height={height} 
+					strokeWidth="0" fill="#112" 
+				/>
 				{LinkViews}
 			</svg>
 			<div className="node-nest">
 				{NodeViews}
 			</div>
-    </div>
-  )
+		</div>
+	)
 }
 
 export default GraphView

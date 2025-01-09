@@ -30,7 +30,19 @@ function App() {
 		)
 	}
 	return (
-		<GraphView nodes={nodes} links={links} root={"n1"} />
+		<div
+			style={{
+				width: "80vw",
+				height: "70vh",
+				border: "1px solid white",
+				overflow: "hidden",
+				borderRadius: "5px",
+				margin: "5vh 10vw",
+				boxSizing: "border-box"
+			}}
+		>
+			<GraphView nodes={nodes} links={links} root={"n1"} vertical />
+		</div>
 	)
 }
 

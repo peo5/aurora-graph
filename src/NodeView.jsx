@@ -2,10 +2,7 @@ function NodeView({x=0,y=0,onMouseDown,children}) {
 	return (
 		<div
 			className = "node"
-			style = {{
-				left: `${x}px`,	
-				top: `${y}px`,
-			}}
+			style = {{ transform: `translate(${x}px,${y}px) translate(-50%,-50%)` }}
 			onMouseDown={onMouseDown}
 		>
 			{children}
